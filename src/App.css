@@ -27,6 +27,21 @@
 .App-link {
   color: #61dafb;
 }
+.my-row-class .MuiDataGrid-cellContent,.MuiDataGrid-cell--withRenderer {
+  font-size: 17px;
+}
+
+.ag-cell {
+
+  font-size: 17px;
+  /* --ag-font-family: monospace; */
+}
+.ag-header-cell-text{
+  margin: 0px auto;
+}
+.ag-header-row{
+  /* text-align: center; */
+}
 
 @keyframes App-logo-spin {
   from {

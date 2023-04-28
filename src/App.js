@@ -1,24 +1,32 @@
-import logo from './logo.svg';
-import './App.css';
-
+import "./App.css";
+import LogIn from "./Pages/Login/LogIn";
+import MiniDrawer from "./Components/MiniDrawer";
+import { useContext } from "react";
+import { ContextForUser } from "./Contexts/UserContext";
+import { useState,useEffect } from "react";
+import { Box } from "@mui/material";
 function App() {
+  const { userData, setuserData } = useContext(ContextForUser);
+  const [loading, setloading] = useState(true)
+
+  useEffect(() => {
+    const token = localStorage.getItem("accessToken");
+    if (token !== null)
+      setuserData((prev) => {
+        return {
+          ...prev,
+          accessToken: token,
+          signedIn: true,
+        };
+      });
+      setloading(false);
+  }, []);
+
+  {if(loading) return <Box></Box>}
+  
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <div className="App">{userData.signedIn ? <MiniDrawer /> : <LogIn />}</div>
   );
 }
 
