@@ -5,12 +5,12 @@ import Button from "@mui/material/Button";
 import { Paper, Typography } from "@mui/material";
 // import AppDrawer from "../../AppDrawer";
 import MapImg from "../../assets/ankit.png";
-import { height } from "@mui/system";
 import { ContextForUser } from "../../Contexts/UserContext";
 import axios from "axios";
 import { Formik } from "formik";
 import { object, string } from "yup";
-
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 export default function LogIn() {
   const { setuserData } = React.useContext(ContextForUser);
 
@@ -21,6 +21,8 @@ export default function LogIn() {
         password: val.password,
       })
       .then((res) => {
+       
+        if(res.data.admin==='yes'){
         localStorage.setItem("accessToken", res.data.accessToken);
         setuserData((prev) => {
           return {
@@ -30,8 +32,13 @@ export default function LogIn() {
             accessToken: res.data.accessToken,
           };
         });
+      }
+      else if(res.data.admin==='no') toast.error("not an admin")
       })
-      .catch(err=>console.log(err))
+      .catch(err=>{
+        if(!err.response.data?.user || !err.response.data?.password) toast.error("inavalid credentials")
+        console.log(err)
+      })
       
   };
   const validationScheme = object({
@@ -48,6 +55,7 @@ export default function LogIn() {
         backgroundColor: "#1976d2",
       }}
     >
+      <ToastContainer/>
       <Paper
         elevation={3}
         sx={{
@@ -88,24 +96,28 @@ export default function LogIn() {
             onSubmit={(val) => logIn(val)}
             validationSchema={validationScheme}
           >
-            {({ handleSubmit, handleChange, errors }) => (
+            {({ handleSubmit, handleChange, errors,touched }) => (
               <>
                 <TextField
                   sx={{ width: "100%" }}
                   id="outlined-basic"
-                  label="enter email"
+                  label="Enter email"
+                  name="email"
                   variant="outlined"
                   onChange={handleChange("email")}
+                  helperText={touched.email?errors.email:null}
+                  error={touched.email?Boolean(errors.email):false}
                 />
-                {errors && <Typography>{errors.name}</Typography>}
                 <TextField
                   sx={{ width: "100%" }}
                   id="outlined-basic"
-                  label="enter Password"
+                  label="Enter Password"
+                  name="password"
                   variant="outlined"
                   onChange={handleChange("password")}
+                  helperText={touched.password?errors.password:null}
+                  error={touched.password?Boolean(errors.password):false}
                 />
-                {errors && <Typography>{errors.name}</Typography>}
                 <Button onClick={handleSubmit} variant="contained">
                   Log In
                 </Button>

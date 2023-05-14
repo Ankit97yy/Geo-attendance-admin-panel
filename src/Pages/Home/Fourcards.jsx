@@ -26,13 +26,12 @@ export default function Fourcards() {
     flexDirection: { xs: "column", sm: "row" },
   };
   const [data, setdata] = useState({total:0,present:0,absent:0,leave:0})
-  console.log("🚀 ~ file: Fourcards.jsx:29 ~ Fourcards ~ data:", data)
 
   const fetchData = async () => {
     try {
       const empDetailsPromise = axios.get("employee/getEmployees");
       const attendancePromise = axios.get("attendance/getAllAttendanceOfToday");
-      const leavesPromise = axios.get("leave/getPendingLeaves");
+      const leavesPromise = axios.get("leave/getonGoingLeaves");
       const [empDetails,attendanceDetails, leaves] = await Promise.all([
         empDetailsPromise,
         attendancePromise,
@@ -42,7 +41,7 @@ export default function Fourcards() {
         total:empDetails.data.length,
         present:attendanceDetails.data.filter((emp) => emp.status === "present").length,
         absent:attendanceDetails.data.filter((emp) => emp.status === "absent").length,
-        leave:leaves.data.filter((leave) => leave.status === "approved").length,
+        leave:leaves.data.total,
       })
     
      

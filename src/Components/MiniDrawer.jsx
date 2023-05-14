@@ -24,12 +24,14 @@ import AllEmployees from "../Pages/Employees_Details/AllEmployees";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import Groups2Icon from "@mui/icons-material/Groups2";
 import LogoutIcon from "@mui/icons-material/Logout";
+import SettingsIcon from '@mui/icons-material/Settings';
 import FmdGoodIcon from "@mui/icons-material/FmdGood";
 import Ankit from "../Pages/Employee_Profile/Ankit";
 import { useNavigate, Route, Routes } from "react-router-dom";
 import AllBranches from "../Pages/Branch_Details/AllBranches";
 import { ContextForUser } from "../Contexts/UserContext";
 import axios from "axios";
+import Abc from "../Pages/Settings/Abc";
 
 const drawerWidth = 240;
 
@@ -102,9 +104,10 @@ export default function MiniDrawer() {
  
 
   const {userData,setuserData}=React.useContext(ContextForUser)
-  const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [component, setcomponent] = React.useState("dashboard");
+
+  const navigate=useNavigate()
   const handleMenu = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -129,7 +132,6 @@ export default function MiniDrawer() {
      return { ...prev,signedIn:false,name:"",accessToken:""}
     })
   }
-  axios.defaults.baseURL = "http://localhost:3001/";
   axios.defaults.headers.common['Authorization'] = `Bearer ${userData.accessToken}`;
 
   return (
@@ -202,7 +204,7 @@ export default function MiniDrawer() {
               <MenuItem onClick={handleClose}>My account</MenuItem>
             </Menu>
             <Typography variant="h6" color="black" alignSelf="center">
-              Ankit Das
+              {userData.name}
             </Typography>
           </Box>
         </Toolbar>
@@ -298,6 +300,27 @@ export default function MiniDrawer() {
         </List>
         <Divider />
         <List>
+        <ListItem disablePadding sx={{ display: "block" }}>
+            <ListItemButton
+              sx={{
+                minHeight: 48,
+                justifyContent: open ? "initial" : "center",
+                px: 2.5,
+              }}
+              onClick={()=>navigate('/settings')}
+            >
+              <ListItemIcon
+                sx={{
+                  minWidth: 0,
+                  mr: open ? 3 : "auto",
+                  justifyContent: "center",
+                }}
+              >
+                <SettingsIcon/>
+              </ListItemIcon>
+              <ListItemText primary="Logout" sx={{ opacity: open ? 1 : 0 }} />
+            </ListItemButton>
+          </ListItem>
           <ListItem disablePadding sx={{ display: "block" }}>
             <ListItemButton
               sx={{
@@ -319,6 +342,7 @@ export default function MiniDrawer() {
               <ListItemText primary="Logout" sx={{ opacity: open ? 1 : 0 }} />
             </ListItemButton>
           </ListItem>
+      
         </List>
       </Drawer>
       <Box component="main" sx={{ flexGrow: 1 }}>
@@ -332,6 +356,7 @@ export default function MiniDrawer() {
             <Route path="/allBranches" element={<AllBranches />} />
             <Route path="/allemployees" element={<AllEmployees />} />
             <Route path="/ankit/:EmpId" element={<Ankit/>} />
+            <Route path="/settings" element={<Abc/>} />
             <Route path="*" element={<div>No page found</div>} />
         </Routes>
       </Box>

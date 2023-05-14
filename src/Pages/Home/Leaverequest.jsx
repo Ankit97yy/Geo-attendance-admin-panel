@@ -51,7 +51,7 @@ export default function Leaverequest() {
     <Box>
       <Paper
         elevation={3}
-        sx={{ height: "62vh", borderRadius: 10, padding: 2 }}
+        sx={{ height: "72vh", borderRadius: 10, padding: 2 }}
       >
         <Typography
           sx={{ display: "flex", marginTop: 2, marginLeft: 2 }}
@@ -84,7 +84,7 @@ export default function Leaverequest() {
                     <ListItemText
                       primaryTypographyProps={{ variant: "h6" }}
                       primary={item.full_name}
-                      secondary={`sick leave from ${moment(item.start).format(
+                      secondary={`${item.leave_type} leave from ${moment(item.start).format(
                         "Do MMMM"
                       )} to ${moment(item.end).format("Do MMMM")} `}
                     />
@@ -103,6 +103,7 @@ export default function Leaverequest() {
                       // edge="end"
                       aria-label="check"
                       size="large"
+                      onClick={()=>handleApproval(item.id)}
                     >
                       <CheckCircleIcon color="success" fontSize="large" />
                     </IconButton>

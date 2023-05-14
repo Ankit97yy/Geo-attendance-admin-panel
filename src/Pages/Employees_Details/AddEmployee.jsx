@@ -27,8 +27,9 @@ export default function AddEmployee({ open, handleClose }) {
   const [admin, setadmin] = useState("no");
   const [branch, setbranch] = React.useState();
   const [branches, setbranches] = useState([]);
+  const [picture, setpicture] = useState(null)
   const handleSubmit = () => {
-    if (formikRef.current && password !== "" && branch !== "") {
+    if (formikRef.current && password !== "" && branch !== "" && picture!==null) {
       formikRef.current.submitForm();
       handleClose();
     }
@@ -46,6 +47,10 @@ export default function AddEmployee({ open, handleClose }) {
     setpassword(password);
   };
 
+  const handlePicture=(event)=>{
+    setpicture(event.target.files[0])
+  }
+
   const validationScheme = object({
     full_name: string()
       .matches(
@@ -61,13 +66,16 @@ export default function AddEmployee({ open, handleClose }) {
   };
 
   const saveData = (val) => {
+    const formdata= new FormData()
+    formdata.append('email',val.email)
+    formdata.append('full_name',val.full_name)
+    formdata.append('branch_location_id',branch)
+    formdata.append('password',password)
+    formdata.append('is_admin',admin)
+    formdata.append('profilePicture',picture)
+    console.log("🚀 ~ file: AddEmployee.jsx:71 ~ saveData ~ formdata:", formdata)
     axios
-      .post("employee/addEmployee", {
-        ...val,
-        branch_location_id: branch,
-        password: password,
-        is_admin: admin,
-      })
+      .post("employee/addEmployee",formdata)
       .then((res) => {
         console.log(res.data); //! setRowdate(res.data)
       })
@@ -122,6 +130,17 @@ export default function AddEmployee({ open, handleClose }) {
                   onChange={handleChange("email")}
                 />
                 {errors.email && errors.email}
+
+                {/* <input type="file" onChange={handlePicture}/> */}
+                <TextField
+                  margin="dense"
+                  name="picture"
+                  id="email"
+                  type="file"
+                  fullWidth
+                  variant="standard"
+                  // onChange={handleChange("email")}
+                />
               </>
             )}
           </Formik>

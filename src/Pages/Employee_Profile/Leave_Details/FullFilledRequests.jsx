@@ -11,14 +11,14 @@ const [rowData, setrowData] = useState()
 console.log("🚀 ~ file: FullFilledRequests.jsx:10 ~ FullFilledRequests ~ rowData:", rowData)
 
 useEffect(() => {
-  axios.get(`leave/getFullfilledRequests/${emp_id}`)
+  axios.get(`leave/getFulfilledRequests/${emp_id}`)
   .then(res=>setrowData(res.data))
   .catch(err=>console.error(err))
 }, [])
 
   const column = [
     {
-      field: "x",
+      field: "leave_type",
       headerName: "Leave type",
     },
     {

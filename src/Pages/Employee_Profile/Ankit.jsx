@@ -10,14 +10,11 @@ import axios from "axios";
 
 export default function Ankit() {
   const { EmpId } = useParams();
-  console.log("🚀 ~ file: Ankit.jsx:14 ~ Ankit ~ EmpId:", EmpId);
   const [employeeInfo, setemployeeInfo] = useState(null);
-  console.log("🚀 ~ file: Ankit.jsx:15 ~ Ankit ~ employeeInfo:", employeeInfo);
   useEffect(() => {
     axios
       .get(`employee/getEmployee/${EmpId}`)
       .then((res) => {
-        console.log(res.data,"PPPPPPPP")
         setemployeeInfo(res.data)
       })
       .catch((error) => console.log(error));

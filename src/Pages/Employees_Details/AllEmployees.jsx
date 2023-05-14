@@ -92,9 +92,9 @@ export default function AllEmployees() {
             </DialogContentText>
           </DialogContent>
           <DialogActions>
-            <Button onClick={() => setdeleteDialog(false)}>Disagree</Button>
+            <Button onClick={() => setdeleteDialog(false)}>No</Button>
             <Button onClick={handleDeleteEmployee} autoFocus>
-              Agree
+              Yes
             </Button>
           </DialogActions>
         </Dialog>
@@ -152,7 +152,6 @@ export default function AllEmployees() {
         filterParams: {
           buttons: ["apply", "reset"],
         },
-        width: 350,
       },
       {
         field: "email",
@@ -163,7 +162,6 @@ export default function AllEmployees() {
         filterParams: {
           buttons: ["apply", "reset"],
         },
-        width: 350,
       },
       {
         field: "location_name",
@@ -177,12 +175,23 @@ export default function AllEmployees() {
         cellEditorParams: {
           values: ["present", "absent"],
         },
-        width: 350,
+      },
+      {
+        field: "is_admin",
+        headerName: "Admin status",
+        editable:true,
+        filter: true,
+        filterParams: {
+          buttons: ["apply", "reset"],
+        },
+        cellEditor: "agSelectCellEditor",
+        cellEditorParams: {
+          values: ["yes", "no"],
+        },
       },
       {
         headerName: "Actions",
         cellRenderer: Actions,
-        width: 350,
       },
     ];
   }, [branches, rowData]);
@@ -190,6 +199,7 @@ export default function AllEmployees() {
   // DefaultColDef sets props common to all Columns
   const defaultColDef = useMemo(() => ({
     sortable: true,
+    width:250
   }));
 
   // Update function
@@ -212,7 +222,7 @@ export default function AllEmployees() {
     <>
       <AddEmployee open={open} handleClose={handleClose} />
       <AlertDialog />
-    <ToastContainer position="bottom-left"/>
+    <ToastContainer position="bottom-left" theme="dark"/>
 
       <Paper
         sx={{ height: "85vh", borderRadius: 5, padding: 4, margin: 2 }}

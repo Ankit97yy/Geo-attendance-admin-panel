@@ -9,23 +9,29 @@ import { string, object, number } from "yup";
 
 import { Formik } from "formik";
 import axios from "axios";
+import { LocalizationProvider, TimeField } from "@mui/x-date-pickers";
+import { AdapterLuxon } from "@mui/x-date-pickers/AdapterLuxon";
 
 export default function AddBranch({ open, handleClose }) {
+
   const handleSubmit = () => {
     if (formikRef.current) {
       console.log(formikRef.current);
       formikRef.current.submitForm();
-        handleClose();
+      handleClose();
     }
   };
 
-  const saveData=(val)=>{
-    axios.post("branch/addBranch",{...val})
-    .then(res=>{
+  const saveData = (val) => {
+    axios
+      .post("branch/addBranch", { ...val })
+      .then((res) => {
         console.log(res);
       })
-      .catch(err=>{console.log(err)});
-  }
+      .catch((err) => {
+        console.log(err);
+      });
+  };
 
   const formikRef = React.useRef(null);
 
@@ -52,43 +58,52 @@ export default function AddBranch({ open, handleClose }) {
           >
             {({ handleChange, errors }) => (
               <>
-                <>
-                  <TextField
-                    margin="dense"
-                    id="latitude"
-                    label="latitude"
-                    type="text"
-                    fullWidth
-                    variant="standard"
-                    onChange={handleChange("latitude")}
-                  />
+                <TextField
+                  margin="dense"
+                  id="latitude"
+                  label="latitude"
+                  type="text"
+                  fullWidth
+                  variant="standard"
+                  onChange={handleChange("latitude")}
+                />
                 {errors.latitude && errors.latitude}
 
-                  <TextField
-                    margin="dense"
-                    id="longitude"
-                    label="longitude"
-                    type="text"
-                    fullWidth
-                    variant="standard"
-                    onChange={handleChange("longitude")}
-
-                  />
+                <TextField
+                  margin="dense"
+                  id="longitude"
+                  label="longitude"
+                  type="text"
+                  fullWidth
+                  variant="standard"
+                  onChange={handleChange("longitude")}
+                />
                 {errors.longitude && errors.longitude}
 
-                  <TextField
-                    margin="dense"
-                    id="location"
-                    label="location name"
-                    type="text"
-                    fullWidth
-                    variant="standard"
-                    onChange={handleChange("location_name")}
-
-                  />
+                <TextField
+                  margin="dense"
+                  id="location"
+                  label="location name"
+                  type="text"
+                  fullWidth
+                  variant="standard"
+                  onChange={handleChange("location_name")}
+                />
                 {errors.location && errors.location}
-
-                </>
+        <LocalizationProvider dateAdapter={AdapterLuxon}>
+                <TimeField
+                  label="Format with seconds"
+                  value={value}
+                  onChange={(newValue) => setstart_time(newValue)}
+                  format="HH:mm:ss"
+                  />
+                    <TimeField
+          label="Format with seconds"
+          value={value}
+          onChange={(newValue) => setend_time(newValue)}
+          format="HH:mm:ss"
+        />
+                  </LocalizationProvider>
               </>
             )}
           </Formik>
