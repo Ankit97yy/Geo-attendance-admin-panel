@@ -26,11 +26,13 @@ export default function LeaveEditor() {
     casual: number().positive().integer().required(),
   });
 
-  const saveData = (val) => {
+  const saveData = (val,actions) => {
     console.log(val);
     axios
       .post("leave/setTotalAllowedLeaves", val)
-      .then(() => toast.success("Updated succesffuly"))
+      .then(() => {
+        actions.resetForm()
+        toast.success("Updated succesffuly")})
       .catch((err) => {
         console.log(err);
         toast.error("something went wrong!");
@@ -44,7 +46,7 @@ export default function LeaveEditor() {
         sick: "",
         casual: "",
       },
-      onSubmit: (val) => saveData(val),
+      onSubmit: (val,actions) => saveData(val,actions),
       validationSchema: validationScheme,
     }
   );
@@ -58,7 +60,6 @@ export default function LeaveEditor() {
           gap:1
         }}
       >
-        <ToastContainer />
         <Typography fontWeight={"bold"}>Update allowed leaves</Typography>
         {console.log(errors.annual, "0000999")}
         {console.log(Boolean(errors.annual) && touched.annual)}

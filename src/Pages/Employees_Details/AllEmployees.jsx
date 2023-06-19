@@ -4,6 +4,7 @@ import React, {
   useEffect,
   useMemo,
   useCallback,
+  useContext,
 } from "react";
 import { Box } from "@mui/system";
 import DeleteForeverRoundedIcon from "@mui/icons-material/DeleteForeverRounded";
@@ -26,7 +27,9 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import { ToastContainer,toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
+import { ContextForUser } from "../../Contexts/UserContext";
 export default function AllEmployees() {
+  const { userData } = useContext(ContextForUser);
   const gridRef = useRef(); // Optional - for accessing Grid's API
   const [rowData, setRowData] = useState([]); // Set rowData to Array of Objects, one Object per Row
   const [branches, setbranches] = useState([]);
@@ -115,9 +118,11 @@ export default function AllEmployees() {
         >
           View Profile
         </Button>
+        {params.data.id!==userData.id?(
         <IconButton onClick={handleDelete}>
           <DeleteForeverRoundedIcon fontSize="large" />
         </IconButton>
+        ):null}
       </>
     );
   };
@@ -179,7 +184,10 @@ export default function AllEmployees() {
       {
         field: "is_admin",
         headerName: "Admin status",
-        editable:true,
+        editable:(params) => {
+          console.log("🚀 ~ file: AllEmployees.jsx:194 ~ columnDefs ~ params:", params)
+          return params.data.id!==userData.id //! work in progress
+        },
         filter: true,
         filterParams: {
           buttons: ["apply", "reset"],
@@ -205,13 +213,19 @@ export default function AllEmployees() {
   // Update function
   const cellEditStoppedListener = useCallback((event) => {
     console.log("cell", event);
+    if (event.newValue==="") return toast.error("Field Can not be empty")
     axios
       .put(`employee/updateEmployee/${event.data.id}`, {
         [event.colDef.field]: event.newValue,
       })
       .then((res) => {
-        console.log("done");
-      });
+        toast.success("Updated Successfully")
+        axios
+        .get("employee/getEmployees")
+        .then((res) => setRowData(res.data))
+        .catch((err) => console.log(err));
+      })
+      .catch(err=>toast.error(err.message))
   }, []);
 
   const quickfilter = useCallback((event) => {
@@ -220,9 +234,8 @@ export default function AllEmployees() {
 
   return (
     <>
-      <AddEmployee open={open} handleClose={handleClose} />
+      <AddEmployee setdata={setRowData} open={open} handleClose={handleClose} />
       <AlertDialog />
-    <ToastContainer position="bottom-left" theme="dark"/>
 
       <Paper
         sx={{ height: "85vh", borderRadius: 5, padding: 4, margin: 2 }}

@@ -106,7 +106,6 @@ export default function GenerateReport() {
         gap:1
       }}
     >
-      <ToastContainer theme="dark" position="bottom-left"/>
       <Typography fontWeight={"bold"}>Generate attendance report</Typography>
       <FormControl>
         <FormLabel id="demo-controlled-radio-buttons-group">Do you want to export report for a specific employee?</FormLabel>

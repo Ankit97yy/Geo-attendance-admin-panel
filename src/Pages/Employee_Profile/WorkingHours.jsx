@@ -36,23 +36,14 @@ export const options = {
   // },
 };
 
-const labels = [
-  "12th mar",
-  "13th mar",
-  "15th mar",
-  "16th mar",
-  "17th May",
-  "18th Jun",
-  "19th Jul",
-];
 
 export default function WorkingHours({ emp_id }) {
   const [chartData, setchartData] = useState({ dates: [], hours: [] });
   console.log("🚀 ~ file: WorkingHours.jsx:51 ~ WorkingHours ~ chartData:", chartData)
   const [labels, setlabels] = useState([]);
-  const [endDate, setendDate] = useState(DateTime.now().toFormat("yyyy-MM-dd"));
+  const [endDate, setendDate] = useState(DateTime.now().setZone('Asia/Kolkata').toFormat("yyyy-MM-dd"));
   const [startDate, setstartDate] = useState(
-    DateTime.now().minus({ days: 6 }).toFormat("yyyy-MM-dd")
+    DateTime.now().setZone('Asia/Kolkata').minus({ days: 6 }).toFormat("yyyy-MM-dd")
     );
     console.log("🚀 ~ file: WorkingHours.jsx:57 ~ WorkingHours ~ startDate:", startDate)
     console.log("🚀 ~ file: WorkingHours.jsx:54 ~ WorkingHours ~ endDate:", endDate)
@@ -99,14 +90,14 @@ export default function WorkingHours({ emp_id }) {
   const handlePreviousWeek = () => {
     setendDate(startDate);
     setstartDate((prev) => {
-      return DateTime.fromFormat(prev, "yyyy-MM-dd").minus({ days: 6 }).toFormat('yyyy-MM-dd');
+      return DateTime.fromFormat(prev, "yyyy-MM-dd").setZone('Asia/Kolkata').minus({ days: 6 }).toFormat('yyyy-MM-dd');
     });
   };
 
   const handleNextWeek = () => {
     setstartDate(endDate);
     setendDate((prev) => {
-      return DateTime.fromFormat(prev, "yyyy-MM-dd").plus({ days: 6 }).toFormat('yyyy-MM-dd');
+      return DateTime.fromFormat(prev, "yyyy-MM-dd").setZone('Asia/Kolkata').plus({ days: 6 }).toFormat('yyyy-MM-dd');
     });
   };
 
@@ -114,6 +105,7 @@ export default function WorkingHours({ emp_id }) {
     labels: chartData.dates,
     datasets: [
       {
+        label:"hours",
         data: chartData.hours,
         backgroundColor: "dodgerblue",
       },
@@ -140,7 +132,7 @@ export default function WorkingHours({ emp_id }) {
           onClick={handleNextWeek}
           color="primary"
           size="medium"
-          disabled={DateTime.now().toFormat('yyyy-MM-dd')===endDate?true:false}
+          disabled={DateTime.now().setZone('Asia/Kolkata').toFormat('yyyy-MM-dd')<=endDate?true:false}
         />
       </Stack>
       {

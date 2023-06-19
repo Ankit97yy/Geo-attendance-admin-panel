@@ -2,17 +2,25 @@ import * as React from "react";
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
-import { Paper, Typography } from "@mui/material";
+import { IconButton, InputAdornment, Paper, Typography } from "@mui/material";
 // import AppDrawer from "../../AppDrawer";
 import MapImg from "../../assets/ankit.png";
 import { ContextForUser } from "../../Contexts/UserContext";
 import axios from "axios";
 import { Formik } from "formik";
 import { object, string } from "yup";
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import "react-toastify/dist/ReactToastify.css";
+import { toast } from "react-toastify";
 export default function LogIn() {
   const { setuserData } = React.useContext(ContextForUser);
+  const [showPassword, setShowPassword] = React.useState(false);
+  const handleClickShowPassword = () => setShowPassword((show) => !show);
+
+  const handleMouseDownPassword = (event) => {
+    event.preventDefault();
+  };
 
   const logIn = (val) => {
     axios
@@ -21,25 +29,25 @@ export default function LogIn() {
         password: val.password,
       })
       .then((res) => {
-       
-        if(res.data.admin==='yes'){
-        localStorage.setItem("accessToken", res.data.accessToken);
-        setuserData((prev) => {
-          return {
-            ...prev,
-            name: res.data.name,
-            signedIn: true,
-            accessToken: res.data.accessToken,
-          };
-        });
-      }
-      else if(res.data.admin==='no') toast.error("not an admin")
+        if (res.data.admin === "yes") {
+          localStorage.setItem("accessToken", res.data.accessToken);
+          setuserData((prev) => {
+            return {
+              ...prev,
+              id:res.data.id,
+              name: res.data.name,
+              signedIn: true,
+              accessToken: res.data.accessToken,
+              profilePicture:res.data.profile_picture
+            };
+          });
+        } else if (res.data.admin === "no") toast.error("not an admin");
       })
-      .catch(err=>{
-        if(!err.response.data?.user || !err.response.data?.password) toast.error("inavalid credentials")
-        console.log(err)
-      })
-      
+      .catch((err) => {
+        if (!err.response.data?.user || !err.response.data?.password)
+          toast.error("inavalid credentials");
+        console.log(err);
+      });
   };
   const validationScheme = object({
     email: string().email().required(),
@@ -55,7 +63,6 @@ export default function LogIn() {
         backgroundColor: "#1976d2",
       }}
     >
-      <ToastContainer/>
       <Paper
         elevation={3}
         sx={{
@@ -64,6 +71,7 @@ export default function LogIn() {
           height: "70vh",
           width: "70vw",
           borderRadius: 10,
+          padding:10
         }}
       >
         <img width={"800px"} src={MapImg} alt="lllll" />
@@ -90,13 +98,13 @@ export default function LogIn() {
             loop={true}
           /> */}
           </div>
-          <Typography>lalalal</Typography>
+          <Typography variant="h4">Geo Attendance App</Typography>
           <Formik
             initialValues={{ email: "", password: "" }}
             onSubmit={(val) => logIn(val)}
             validationSchema={validationScheme}
           >
-            {({ handleSubmit, handleChange, errors,touched }) => (
+            {({ handleSubmit, handleChange, errors, touched }) => (
               <>
                 <TextField
                   sx={{ width: "100%" }}
@@ -105,20 +113,37 @@ export default function LogIn() {
                   name="email"
                   variant="outlined"
                   onChange={handleChange("email")}
-                  helperText={touched.email?errors.email:null}
-                  error={touched.email?Boolean(errors.email):false}
+                  helperText={touched.email ? errors.email : null}
+                  error={touched.email ? Boolean(errors.email) : false}
+                 
                 />
+
                 <TextField
                   sx={{ width: "100%" }}
                   id="outlined-basic"
                   label="Enter Password"
                   name="password"
                   variant="outlined"
+                  type={showPassword ? 'text' : 'password'}
                   onChange={handleChange("password")}
-                  helperText={touched.password?errors.password:null}
-                  error={touched.password?Boolean(errors.password):false}
+                  helperText={touched.password ? errors.password : null}
+                  error={touched.password ? Boolean(errors.password) : false}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="start">
+                        <IconButton
+                          aria-label="toggle password visibility"
+                          onClick={handleClickShowPassword}
+                          onMouseDown={handleMouseDownPassword}
+                          edge="end"
+                        >
+                          {showPassword ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
                 />
-                <Button onClick={handleSubmit} variant="contained">
+                <Button fullWidth sx={{fontSize:15}} onClick={handleSubmit} variant="contained">
                   Log In
                 </Button>
               </>

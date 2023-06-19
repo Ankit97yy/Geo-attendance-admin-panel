@@ -32,7 +32,7 @@ export default function SetTimeForBranch() {
   };
 
 const handleSubmit=()=>{
-  if(inTime===null||outTime===null||branch==="") return toast.warn("Fill all fields")
+  if(inTime===null||outTime===null||branch==="") return toast.warn("Fill all the fields ")
   if(inTime?.invalid===null && outTime?.invalid===null)
     axios.post('/branch/setTime',{inTime:inTime.toFormat("HH:mm:ss"),outTime:outTime.toFormat("HH:mm:ss"),branch})
     .then(()=>toast.success("Updated Successfully"))
@@ -44,7 +44,6 @@ const handleSubmit=()=>{
 }
   return (
     <Box sx={{flexDirection:'column',display:'flex',alignItems:'flex-start',gap:1}}>
-      <ToastContainer/>
       <Typography sx={{fontWeight:'bold'}}>Set Open and Close time of a branch</Typography>
       <LocalizationProvider dateAdapter={AdapterLuxon}>
           <TimeField
@@ -69,9 +68,9 @@ const handleSubmit=()=>{
           
           label="branch"
         >
-          <MenuItem value="">
+          {/* <MenuItem value="">
             <em>None</em>
-          </MenuItem>
+          </MenuItem> */}
           {branches.map((item) => {
             return <MenuItem value={item.id}>{item.location_name}</MenuItem>;
           })}

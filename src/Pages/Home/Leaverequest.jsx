@@ -14,15 +14,18 @@ import { useState, useEffect } from "react";
 import { Box } from "@mui/system";
 import { ContextForUser } from "../../Contexts/UserContext";
 import moment from "moment";
+import { socket } from "../../App";
+import { DateTime } from "luxon";
 export default function Leaverequest() {
   const [leaves, setleaves] = useState([]);
+  const [refresh, setrefresh] = useState(false)
   const { userData } = useContext(ContextForUser);
   useEffect(() => {
     axios
       .get("leave/getPendingLeaves")
       .then((res) => setleaves(res.data))
       .catch((err) => console.log(err));
-  }, []);
+  }, [refresh]);
 
 
   const handleRejection = (id) => {
@@ -45,16 +48,20 @@ export default function Leaverequest() {
       })
       .catch((err) => console.log(err));
   };
+  socket.on("REFRESH_LEAVE",()=>{
+    console.log("client fired")
+    setrefresh(!refresh)
+  })
 
 
   return (
     <Box>
       <Paper
         elevation={3}
-        sx={{ height: "72vh", borderRadius: 10, padding: 2 }}
+        sx={{ height: "72vh", borderRadius: 5, padding: 2 }}
       >
         <Typography
-          sx={{ display: "flex", marginTop: 2, marginLeft: 2 }}
+          sx={{ display: "flex", marginLeft: 2 }}
           variant="h5"
         >
           Leave requests
@@ -84,9 +91,7 @@ export default function Leaverequest() {
                     <ListItemText
                       primaryTypographyProps={{ variant: "h6" }}
                       primary={item.full_name}
-                      secondary={`${item.leave_type} leave from ${moment(item.start).format(
-                        "Do MMMM"
-                      )} to ${moment(item.end).format("Do MMMM")} `}
+                      secondary={`${item.leave_type} leave from ${DateTime.fromISO(item.start).setZone('Asia/Kolkata').toLocaleString({day:'2-digit',month:'short',year:'numeric'})} to ${DateTime.fromISO(item.end).setZone('Asia/Kolkata').toLocaleString({day:'2-digit',month:'short',year:'numeric'})}`}
                     />
                   </Box>
                   <Box

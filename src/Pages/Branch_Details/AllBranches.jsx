@@ -4,6 +4,9 @@ import React, {
   useEffect,
   useMemo,
   useCallback,
+  forwardRef,
+  useImperativeHandle,
+  memo,
 } from "react";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
@@ -84,7 +87,6 @@ export default function AllBranches() {
   }
 
   const Actions = (params) => {
-    
     const handleDeleteBranch = () => {
       setbranchToBeDeleted(params.data.id);
       setdeleteDialog(true);
@@ -98,20 +100,30 @@ export default function AllBranches() {
 
   //Add Branch modal dialog
   const AddBranch = () => {
+    const formikRef = React.useRef(null);
     const [start_time, setstart_time] = useState(null);
     const [end_time, setend_time] = useState(null);
-    const handleSubmit = () => {
-      if (formikRef.current && start_time?.invalid === null && end_time?.invalid === null) {
-        console.log(formikRef.current);
-        formikRef.current.submitForm();
-        handleClose();
-      }
-      else toast.warning("Fill all the field")
-    };
+    // const handleSubmit = () => {
+    //   if (
+    //     formikRef.isValid &&
+    //     start_time?.invalid === null &&
+    //     end_time?.invalid === null
+    //   ) {
+    //     console.log(formikRef.current);
+    //     formikRef.current.submitForm();
+    //     handleClose();
+    //   } else toast.warning("Fill all the field");
+    // };
 
     const saveData = (val) => {
+      if( start_time?.invalid === null &&
+        end_time?.invalid === null)
       axios
-        .post("branch/addBranch", { ...val,start:start_time.toFormat('HH:mm:ss'),end:end_time.toFormat('HH:mm:ss') })
+        .post("branch/addBranch", {
+          ...val,
+          start: start_time.toFormat("HH:mm:ss"),
+          end: end_time.toFormat("HH:mm:ss"),
+        })
         .then((res) => {
           toast.success("Added successfully");
           axios
@@ -121,10 +133,11 @@ export default function AllBranches() {
         })
         .catch((err) => {
           console.log(err);
-        });
+        })
+        .finally(()=>handleClose())
+        else toast.warn("Fill all the fields")
     };
 
-    const formikRef = React.useRef(null);
 
     const validationScheme = object({
       latitude: number().required(),
@@ -148,58 +161,55 @@ export default function AllBranches() {
               innerRef={formikRef}
               validationSchema={validationScheme}
             >
-              {({ handleChange, errors }) => (
+              {({ handleChange, errors,handleSubmit }) => (
                 <>
-                    <TextField
-                      margin="dense"
-                      id="latitude"
-                      label="Latitude"
-                      type="text"
-                      fullWidth
-                      variant="standard"
-                      onChange={handleChange("latitude")}
-                      helperText={errors.latitude}
-                      error={Boolean(errors.latitude)}
-                    />
-                    
+                  <TextField
+                    margin="dense"
+                    id="latitude"
+                    label="Latitude"
+                    type="text"
+                    fullWidth
+                    variant="standard"
+                    onChange={handleChange("latitude")}
+                    helperText={errors.latitude}
+                    error={Boolean(errors.latitude)}
+                  />
 
-                    <TextField
-                      margin="dense"
-                      id="longitude"
-                      label="Longitude"
-                      type="text"
-                      fullWidth
-                      variant="standard"
-                      onChange={handleChange("longitude")}
-                      helperText={errors.longitude}
-                      error={Boolean(errors.longitude)}
-                    />
+                  <TextField
+                    margin="dense"
+                    id="longitude"
+                    label="Longitude"
+                    type="text"
+                    fullWidth
+                    variant="standard"
+                    onChange={handleChange("longitude")}
+                    helperText={errors.longitude}
+                    error={Boolean(errors.longitude)}
+                  />
 
-                    <TextField
-                      margin="dense"
-                      id="location"
-                      label="Location name"
-                      type="text"
-                      fullWidth
-                      variant="standard"
-                      onChange={handleChange("location_name")}
-                      helperText={errors.location_name}
-                      error={Boolean(errors.location_name)}
-                    />
-                    <TextField
-                      margin="dense"
-                      id="radius"
-                      label="Radius"
-                      type="number"
-                      fullWidth
-                      variant="standard"
-                      onChange={handleChange("radius")}
-                      helperText={errors.radius}
-                      error={Boolean(errors.radius)}
-                    />
-                </>
-              )}
-            </Formik>
+                  <TextField
+                    margin="dense"
+                    id="location"
+                    label="Location name"
+                    type="text"
+                    fullWidth
+                    variant="standard"
+                    onChange={handleChange("location_name")}
+                    helperText={errors.location_name}
+                    error={Boolean(errors.location_name)}
+                  />
+                  <TextField
+                    margin="dense"
+                    id="radius"
+                    label="Radius"
+                    type="number"
+                    fullWidth
+                    variant="standard"
+                    onChange={handleChange("radius")}
+                    helperText={errors.radius}
+                    error={Boolean(errors.radius)}
+                  />
+                  
             <LocalizationProvider dateAdapter={AdapterLuxon}>
               <TimeField
                 label="Start time"
@@ -214,17 +224,80 @@ export default function AllBranches() {
                 format="HH:mm:ss"
               />
             </LocalizationProvider>
-          </DialogContent>
-          <DialogActions>
+            <DialogActions>
             <Button onClick={handleClose}>Cancel</Button>
             <Button onClick={handleSubmit}>Add Branch</Button>
           </DialogActions>
+                </>
+              )}
+            </Formik>
+          </DialogContent>
+          {/* <DialogActions>
+            <Button onClick={handleClose}>Cancel</Button>
+            <Button onClick={handleSubmit}>Add Branch</Button>
+          </DialogActions> */}
         </Dialog>
       </div>
     );
   };
   //
+  const PickTime = memo(
+    forwardRef((props, ref) => {
+      const [value, setValue] = useState(
+        props.value !== null
+          ? DateTime.fromFormat(props.value, "HH:mm:ss")
+          : null
+      );
+      console.log("🚀 ~ file: AllAttendance.jsx:32 ~ PickTime ~ value:", value);
+      const refInput = useRef(null);
 
+      // useEffect(() => {
+      // focus on the input
+      //     refInput.current.focus();
+      // }, []);
+
+      /* Component Editor Lifecycle methods */
+      useImperativeHandle(ref, () => {
+        return {
+          // the final value to send to the grid, on completion of editing
+          getValue() {
+            // this simple editor doubles any value entered into the input
+            if (value !== null) {
+              if (value.toFormat("HH:mm:ss") === "00:00:00") return null;
+              return value.toFormat("HH:mm:ss");
+            } else return null;
+          },
+
+          // Gets called once before editing starts, to give editor a chance to
+          // cancel the editing before it even starts.
+          isCancelBeforeStart() {
+            return false;
+          },
+
+          // Gets called once when editing is finished (eg if Enter is pressed).
+          // If you return true, then the result of the edit will be ignored.
+          // isCancelAfterEnd() {
+          // our editor will reject any value greater than 1000
+          //     return value > 1000;
+          // }
+        };
+      });
+
+      // const handleChange = (date) => {
+      //   setValue(date);
+      // };
+
+      return (
+        <LocalizationProvider dateAdapter={AdapterLuxon}>
+          <TimeField
+            value={value}
+            onChange={(newValue) => setValue(newValue)}
+            format="HH:mm:ss"
+          />
+        </LocalizationProvider>
+      );
+    })
+  );
   // Each Column Definition results in one Column.
   // const [columnDefs, setColumnDefs] = useState();
   const columnDefs = useMemo(() => {
@@ -266,7 +339,40 @@ export default function AllBranches() {
         },
       },
       {
-        headerName: "action",
+        field: "start_time",
+        headerName: "Start Time",
+        editable: true,
+        filter: true,
+        resizable: true,
+        cellEditor: PickTime,
+        filterParams: {
+          buttons: ["apply", "reset"],
+        },
+      },
+
+      {
+        field: "end_time",
+        headerName: "End Time",
+        editable: true,
+        filter: true,
+        resizable: true,
+        cellEditor: PickTime,
+        filterParams: {
+          buttons: ["apply", "reset"],
+        },
+      },
+      {
+        field: "radius",
+        headerName: "Radius",
+        editable: true,
+        filter: true,
+        resizable: true,
+        filterParams: {
+          buttons: ["apply", "reset"],
+        },
+      },
+      {
+        headerName: "Delete branch",
         cellRenderer: Actions,
       },
     ];
@@ -275,7 +381,7 @@ export default function AllBranches() {
   // DefaultColDef sets props common to all Columns
   const defaultColDef = useMemo(() => ({
     sortable: true,
-    width: 350,
+    width: 225,
   }));
   const [quickFilter, setquickfilter] = useState("");
 
@@ -287,7 +393,13 @@ export default function AllBranches() {
         [event.colDef.field]: event.newValue,
       })
       .then((res) => {
-        console.log("done");
+        toast.success("Updated Successfully");
+      })
+      .catch((err) => {
+        console.log(
+          "🚀 ~ file: AllBranches.jsx:327 ~ cellEditStoppedListener ~ err:",
+          err
+        );
       });
   }, []);
   const cellClickedListener = useCallback((event) => {
@@ -310,11 +422,9 @@ export default function AllBranches() {
   }, []);
   return (
     <>
-      <ToastContainer position="bottom-left" theme="dark" />
       {/* <FullScreenDialog form="branch" open={open} handleClose={handleClose} /> */}
       <AddBranch />
       <AlertDialog />
-
       <Paper
         sx={{ height: "85vh", borderRadius: 5, padding: 4, margin: 2 }}
         elevation={3}
@@ -343,7 +453,7 @@ export default function AllBranches() {
               variant="outlined"
               size="small"
               // sx={{ bottom: 10 }}
-              placeholder="Search anything"
+              placeholder="Search"
               onInput={quickfilter}
             />
           </Box>

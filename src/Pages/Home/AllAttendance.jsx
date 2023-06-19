@@ -20,14 +20,14 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { AdapterLuxon } from "@mui/x-date-pickers/AdapterLuxon";
 import { TimeField } from "@mui/x-date-pickers/TimeField";
+import { socket } from "../../App";
+import { toast } from "react-toastify";
 
 export default function AllAttendance() {
   const gridRef = useRef(); // for accessing Grid's API
   const [rowData, setRowData] = useState([]); // Set rowData to Array of Objects, one Object per Row
-  console.log(
-    "🚀 ~ file: AllAttendance.jsx:26 ~ AllAttendance ~ rowData:",
-    rowData
-  );
+  const [refresh, setrefresh] = useState(false)
+  socket.on("ATTENDANCE_RECIEVED",()=>setrefresh(!refresh))
 
   const PickTime = memo(
     forwardRef((props, ref) => {
@@ -108,6 +108,7 @@ export default function AllAttendance() {
     },
     {
       field: "status",
+      headerName: "Status",
       filter: true,
       editable: true,
       cellStyle: (params) => {
@@ -135,6 +136,7 @@ export default function AllAttendance() {
     },
     {
       field: "in_time",
+      headerName: "In Time",
       filter: true,
       editable: true,
       cellEditor: PickTime,
@@ -147,6 +149,7 @@ export default function AllAttendance() {
     },
     {
       field: "out_time",
+      headerName: "Out Time",
       editable: true,
       filter: true,
       cellEditor: PickTime,
@@ -160,47 +163,45 @@ export default function AllAttendance() {
     {
       headerName: "Late Arrival",
       field: "late_arrival",
-      cellStyle: (params) => {
-        if (params.value === null) return;
-        if (params.value > 0) {
-          return {
-            backgroundColor: "#ffff0030",
-            borderRadius: 10,
-            // "text-shadow": "0.5px 0px 1px ",
-          };
-        } else return { color: "green" };
-      },
+      // cellStyle: (params) => {
+      //   if (params.value === null) return;
+      //   if (params.value > 0) {
+      //     return {
+      //       backgroundColor: "#ffff0030",
+      //       borderRadius: 10,
+      //       "text-shadow": "0.5px 0px 1px ",
+      //     };
+      //   } else return { color: "green" };
+      // },
       valueFormatter: (params) => {
         if (params.value === null) return "--";
-        else if (params.value <= 0) return "On time";
-        else return `${params.value} min`;
+        else return `${params.value}`;
       },
     },
     {
       headerName: "Early Departure",
       field: "early_departure",
-      cellStyle: (params) => {
-        if (params.value === null) return;
-        if (params.value > 0) {
-          return {
-            backgroundColor: "#ffff0030",
-            borderRadius: 10,
-            // "text-shadow": "0.5px 0px 1px ",
-          };
-        } else if (params.value <= 0)
-          return {
-            backgroundColor: "#b3ffb360",
-          };
-      },
+      // cellStyle: (params) => {
+      //   if (params.value === null) return;
+      //   if (params.value > 0) {
+      //     return {
+      //       backgroundColor: "#ffff0030",
+      //       borderRadius: 10,
+      //       "text-shadow": "0.5px 0px 1px ",
+      //     };
+      //   } else if (params.value <= 0)
+      //     return {
+      //       backgroundColor: "#b3ffb360",
+      //     };
+      // },
       valueFormatter: (params) => {
         if (params.value === null) return "--";
-        else if (params.value <= 0) return "On time";
-        else return `${params.value} min`;
+        else return `${params.value}`;
       },
     },
     {
       field: "date",
-      // editable: true,
+      headerName: "Date",
       filter: "agDateColumnFilter",
       // cellEditor:PickDate,
       // cellEditorPopup:true,
@@ -256,7 +257,7 @@ export default function AllAttendance() {
         [event.colDef.field]: event.newValue,
       })
       .then((res) => {
-        console.log("done");
+        toast.success("Updated Successfully");
       })
       .catch((err) => console.log(err));
   }, []);
@@ -267,6 +268,7 @@ export default function AllAttendance() {
   }, []);
 
   useEffect(() => {
+    console.log("all attendance rendered")
     axios
       .get("attendance/getAllAttendances")
       .then((res) => {
@@ -282,10 +284,10 @@ export default function AllAttendance() {
         setRowData(temp);
       })
       .catch((err) => console.log(err));
-  }, []);
+  }, [refresh]);
 
   return (
-    <Paper sx={{ height: "62vh", borderRadius: 10, padding: 2 }} elevation={3}>
+    <Paper sx={{ height: "62vh", borderRadius: 5, padding: 2 }} elevation={3}>
       <Box sx={{ justifyContent: "space-between", display: "flex" }}>
         <Typography
           sx={{ justifySelf: "flex-start", display: "flex" }}
@@ -297,7 +299,7 @@ export default function AllAttendance() {
           variant="outlined"
           size="small"
           sx={{}}
-          placeholder="Search anything"
+          placeholder="Search"
           onInput={quickfilter}
         />
       </Box>

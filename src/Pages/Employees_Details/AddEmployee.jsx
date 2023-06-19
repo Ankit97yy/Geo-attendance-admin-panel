@@ -20,19 +20,29 @@ import FormLabel from "@mui/material/FormLabel";
 import Randomstring from "randomstring";
 import { Formik } from "formik";
 import axios from "axios";
+import { ToastContainer, toast } from "react-toastify";
 
-export default function AddEmployee({ open, handleClose }) {
+export default function AddEmployee({ open, handleClose, setdata }) {
   const formikRef = React.useRef(null);
   const [password, setpassword] = useState("");
+  console.log(
+    "🚀 ~ file: AddEmployee.jsx:27 ~ AddEmployee ~ password:",
+    password
+  );
   const [admin, setadmin] = useState("no");
-  const [branch, setbranch] = React.useState();
+  const [branch, setbranch] = React.useState("");
+  console.log("🚀 ~ file: AddEmployee.jsx:30 ~ AddEmployee ~ branch:", branch);
   const [branches, setbranches] = useState([]);
-  const [picture, setpicture] = useState(null)
+  const [picture, setpicture] = useState(null);
+  console.log(
+    "🚀 ~ file: AddEmployee.jsx:31 ~ AddEmployee ~ picture:",
+    picture
+  );
   const handleSubmit = () => {
-    if (formikRef.current && password !== "" && branch !== "" && picture!==null) {
+    if (password !== "" && branch !== "" && picture !== null) {
       formikRef.current.submitForm();
       handleClose();
-    }
+    } else toast.warn("Fill all the fields");
   };
   const handleDialogClose = () => {
     setpassword("");
@@ -47,9 +57,9 @@ export default function AddEmployee({ open, handleClose }) {
     setpassword(password);
   };
 
-  const handlePicture=(event)=>{
-    setpicture(event.target.files[0])
-  }
+  const handlePicture = (event) => {
+    setpicture(event.target.files[0]);
+  };
 
   const validationScheme = object({
     full_name: string()
@@ -66,18 +76,26 @@ export default function AddEmployee({ open, handleClose }) {
   };
 
   const saveData = (val) => {
-    const formdata= new FormData()
-    formdata.append('email',val.email)
-    formdata.append('full_name',val.full_name)
-    formdata.append('branch_location_id',branch)
-    formdata.append('password',password)
-    formdata.append('is_admin',admin)
-    formdata.append('profilePicture',picture)
-    console.log("🚀 ~ file: AddEmployee.jsx:71 ~ saveData ~ formdata:", formdata)
+    console.log("🚀 ~ file: AddEmployee.jsx:69 ~ saveData ~ val:", val);
+    const formdata = new FormData();
+    formdata.append("email", val.email);
+    formdata.append("full_name", val.full_name);
+    formdata.append("branch_location_id", branch);
+    formdata.append("password", password);
+    formdata.append("is_admin", admin);
+    formdata.append("profilePicture", picture);
+    console.log(
+      "🚀 ~ file: AddEmployee.jsx:71 ~ saveData ~ formdata:",
+      formdata
+    );
     axios
-      .post("employee/addEmployee",formdata)
+      .post("employee/addEmployee", formdata)
       .then((res) => {
-        console.log(res.data); //! setRowdate(res.data)
+        toast.success("Employee added successfully");
+        axios
+          .get("employee/getEmployees")
+          .then((res) => setdata(res.data))
+          .catch((err) => console.log(err));
       })
       .catch((err) => {
         console.log(err);
@@ -118,7 +136,9 @@ export default function AddEmployee({ open, handleClose }) {
                   variant="standard"
                   onChange={handleChange("full_name")}
                 />
-                {errors.full_name && errors.full_name}
+                <Typography sx={{ color: "red" }}>
+                  {errors.full_name && errors.full_name}
+                </Typography>
                 <TextField
                   margin="dense"
                   name="email"
@@ -129,8 +149,8 @@ export default function AddEmployee({ open, handleClose }) {
                   variant="standard"
                   onChange={handleChange("email")}
                 />
-                {errors.email && errors.email}
-
+                  {errors.email && errors.email}
+              
                 {/* <input type="file" onChange={handlePicture}/> */}
                 <TextField
                   margin="dense"
@@ -139,7 +159,7 @@ export default function AddEmployee({ open, handleClose }) {
                   type="file"
                   fullWidth
                   variant="standard"
-                  // onChange={handleChange("email")}
+                  onChange={handlePicture}
                 />
               </>
             )}

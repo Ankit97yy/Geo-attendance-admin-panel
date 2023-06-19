@@ -32,6 +32,7 @@ import AllBranches from "../Pages/Branch_Details/AllBranches";
 import { ContextForUser } from "../Contexts/UserContext";
 import axios from "axios";
 import Abc from "../Pages/Settings/Abc";
+import { socket } from "../App";
 
 const drawerWidth = 240;
 
@@ -133,6 +134,23 @@ export default function MiniDrawer() {
     })
   }
   axios.defaults.headers.common['Authorization'] = `Bearer ${userData.accessToken}`;
+React.useEffect(()=>{
+  axios.get("employee/getLoggedInEmployee")
+  .then(res=>{
+    setuserData(prev=>{
+      return{
+        ...prev,
+        id:res.data.id,
+        name:res.data.name,
+        profilePicture:res.data.profile_picture
+      }
+    })
+  }
+  )
+},[])
+  const handleEvent=()=>{
+    socket.emit("test","hello world");
+  }
 
   return (
     <Box sx={{ display: "flex" }}>
@@ -167,11 +185,11 @@ export default function MiniDrawer() {
             </Typography>
           </Box>
           <Box sx={{ flexDirection: "row", display: "flex" }}>
-            <IconButton color="black">
+            {/* <IconButton color="black" onClick={handleEvent}>
               <Badge badgeContent={3} color="warning">
                 <NotificationsIcon fontSize="large" />
               </Badge>
-            </IconButton>
+            </IconButton> */}
             <IconButton
               size="large"
               aria-label="account of current user"
@@ -181,11 +199,11 @@ export default function MiniDrawer() {
               color="black"
             >
               <Avatar
-                alt="lllll"
-                src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fi2.cinestaan.com%2Fimage-bank%2F1500-1500%2F64001-65000%2F64003.jpg&f=1&nofb=1&ipt=d6b55e3db8d736e884b88fc3b4f627ab082841573d8123a6445eca2aeb5a44fa&ipo=images"
+                alt={userData?.name}
+                src={`http://localhost:3001/${userData?.profilePicture}`}
               />
             </IconButton>
-            <Menu
+            {/* <Menu
               id="menu-appbar"
               anchorEl={anchorEl}
               anchorOrigin={{
@@ -202,7 +220,7 @@ export default function MiniDrawer() {
             >
               <MenuItem onClick={handleClose}>Profile</MenuItem>
               <MenuItem onClick={handleClose}>My account</MenuItem>
-            </Menu>
+            </Menu> */}
             <Typography variant="h6" color="black" alignSelf="center">
               {userData.name}
             </Typography>

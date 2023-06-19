@@ -40,7 +40,6 @@ const handleSubmit=()=>{
         gap: 1,
       }}
     >
-      <ToastContainer/>
       <Typography fontWeight={"bold"}>Set radius of the region</Typography>
       <TextField
         type="number"

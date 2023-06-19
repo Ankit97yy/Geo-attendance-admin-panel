@@ -4,6 +4,9 @@ import React, {
   useEffect,
   useMemo,
   useCallback,
+  memo,
+  forwardRef,
+  useImperativeHandle,
 } from "react";
 import { Box } from "@mui/system";
 import { Paper, TextField, Typography } from "@mui/material";
@@ -12,6 +15,9 @@ import "ag-grid-community/styles/ag-grid.css"; // Core grid CSS, always needed
 import "ag-grid-community/styles/ag-theme-alpine.css"; // Optional theme CSS
 import axios from "axios";
 import { DateTime } from "luxon";
+import { LocalizationProvider, TimeField } from "@mui/x-date-pickers";
+import { AdapterLuxon } from "@mui/x-date-pickers/AdapterLuxon";
+import { toast } from "react-toastify";
 
 export default function EmpAttendance({ emp_id }) {
   const [rowData, setrowData] = useState([]);
@@ -30,25 +36,82 @@ export default function EmpAttendance({ emp_id }) {
       })
       .catch((err) => console.log(err));
   }, []);
+  const PickTime = memo(
+    forwardRef((props, ref) => {
+      const [value, setValue] = useState(
+        props.value !== null
+          ? DateTime.fromFormat(props.value, "HH:mm:ss")
+          : null
+      );
+      console.log("🚀 ~ file: AllAttendance.jsx:32 ~ PickTime ~ value:", value);
+      const refInput = useRef(null);
+
+      // useEffect(() => {
+      // focus on the input
+      //     refInput.current.focus();
+      // }, []);
+
+      /* Component Editor Lifecycle methods */
+      useImperativeHandle(ref, () => {
+        return {
+          // the final value to send to the grid, on completion of editing
+          getValue() {
+            // this simple editor doubles any value entered into the input
+            if (value !== null) {
+              if (value.toFormat("HH:mm:ss") === "00:00:00") return null;
+              return value.toFormat("HH:mm:ss");
+            } else return null;
+          },
+
+          // Gets called once before editing starts, to give editor a chance to
+          // cancel the editing before it even starts.
+          isCancelBeforeStart() {
+            return false;
+          },
+
+          // Gets called once when editing is finished (eg if Enter is pressed).
+          // If you return true, then the result of the edit will be ignored.
+          // isCancelAfterEnd() {
+          // our editor will reject any value greater than 1000
+          //     return value > 1000;
+          // }
+        };
+      });
+
+      // const handleChange = (date) => {
+      //   setValue(date);
+      // };
+
+      return (
+        <LocalizationProvider dateAdapter={AdapterLuxon}>
+          <TimeField
+            value={value}
+            onChange={(newValue) => setValue(newValue)}
+            format="HH:mm:ss"
+          />
+        </LocalizationProvider>
+      );
+    })
+  );
 
   const [columnDefs, setColumnDefs] = useState([
-    {
-      field: "full_name",
-      headerName: "Name",
-      filter: true,
-      filterParams: {
-        buttons: ["apply", "reset"],
-      },
-    },
-    {
-      field: "location_name",
-      headerName: "Location Name",
-      filter: true,
-      filterParams: {
-        buttons: ["apply", "reset"],
-      },
-      onCellValueChanged: (params) => {},
-    },
+    // {
+    //   field: "full_name",
+    //   headerName: "Name",
+    //   filter: true,
+    //   filterParams: {
+    //     buttons: ["apply", "reset"],
+    //   },
+    // },
+    // {
+    //   field: "location_name",
+    //   headerName: "Location Name",
+    //   filter: true,
+    //   filterParams: {
+    //     buttons: ["apply", "reset"],
+    //   },
+    //   onCellValueChanged: (params) => {},
+    // },
     {
       field: "status",
       filter: true,
@@ -81,6 +144,7 @@ export default function EmpAttendance({ emp_id }) {
       field: "in_time",
       filter: true,
       editable: true,
+      cellEditor:PickTime,
       filterParams: {
         buttons: ["apply", "reset"],
       },
@@ -89,6 +153,7 @@ export default function EmpAttendance({ emp_id }) {
       headerName: "Out time",
       field: "out_time",
       editable: true,
+      cellEditor:PickTime,
       filter: true,
       filterParams: {
         buttons: ["apply", "reset"],
@@ -102,42 +167,40 @@ export default function EmpAttendance({ emp_id }) {
       filterParams: {
         buttons: ["apply", "reset"],
       },
-      cellStyle: (params) => {
-        if (params.value === null) return;
-        if (params.value > 0) {
-          return {
-            backgroundColor: "#ffff0030",
-            borderRadius: 10,
+      // cellStyle: (params) => {
+      //   if (params.value === null) return;
+      //   if (params.value > 0) {
+      //     return {
+      //       backgroundColor: "#ffff0030",
+      //       borderRadius: 10,
             // "text-shadow": "0.5px 0px 1px ",
-          };
-        } else return { color: "green" };
-      },
+      //     };
+      //   } else return { color: "green" };
+      // },
       valueFormatter: (params) => {
         if (params.value === null) return "--";
-        else if (params.value <= 0) return "On time";
-        else return `${params.value} min`;
+        else return `${params.value}`;
       },
     },
     {
       headerName: "Early departure",
       field: "early_departure",
-      cellStyle: (params) => {
-        if (params.value === null) return;
-        if (params.value > 0) {
-          return {
-            backgroundColor: "#ffff0030",
-            borderRadius: 10,
+      // cellStyle: (params) => {
+      //   if (params.value === null) return;
+      //   if (params.value > 0) {
+      //     return {
+      //       backgroundColor: "#ffff0030",
+      //       borderRadius: 10,
             // "text-shadow": "0.5px 0px 1px ",
-          };
-        } else if (params.value <= 0)
-          return {
-            backgroundColor: "#b3ffb360",
-          };
-      },
+      //     };
+      //   } else if (params.value <= 0)
+      //     return {
+      //       backgroundColor: "#b3ffb360",
+      //     };
+      // },
       valueFormatter: (params) => {
         if (params.value === null) return "--";
-        else if (params.value <= 0) return "On time";
-        else return `${params.value} min`;
+        else return `${params.value}`;
       },
       editable: true,
       filter: true,
@@ -187,7 +250,7 @@ export default function EmpAttendance({ emp_id }) {
   // DefaultColDef sets props common to all Columns
   const defaultColDef = useMemo(() => ({
     sortable: true,
-    width: 220,
+    width: 300,
   }));
 
   // Example of consuming Grid Event
@@ -198,7 +261,7 @@ export default function EmpAttendance({ emp_id }) {
         [event.colDef.field]: event.newValue,
       })
       .then((res) => {
-        console.log("done");
+        toast.success("Updated Succesfully")
       })
       .catch((err) => console.log(err));
   }, []);

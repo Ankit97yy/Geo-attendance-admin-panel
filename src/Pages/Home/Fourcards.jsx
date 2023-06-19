@@ -10,6 +10,7 @@ import { Navigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import axios from "axios";
 import { DateTime } from "luxon";
+import { socket } from "../../App";
 export default function Fourcards() {
   const gradientColor = "linear-gradient(60deg, #eb4886 30%, #bc539d 100%)";
   const gradientColor2 = "linear-gradient(60deg, #875ec0 30%, #614db7 100%)";
@@ -26,7 +27,9 @@ export default function Fourcards() {
     flexDirection: { xs: "column", sm: "row" },
   };
   const [data, setdata] = useState({total:0,present:0,absent:0,leave:0})
-
+  const [refresh, setrefresh] = useState(false)
+  
+socket.on("ATTENDANCE_RECIEVED",()=>setrefresh(!refresh))
   const fetchData = async () => {
     try {
       const empDetailsPromise = axios.get("employee/getEmployees");
@@ -50,8 +53,9 @@ export default function Fourcards() {
     }
   };
   useEffect(() => {
+    console.log("four cards rendered")
     fetchData();
-  }, []);
+  }, [refresh]);
 
   return (
     <Grid2 container spacing={2}>

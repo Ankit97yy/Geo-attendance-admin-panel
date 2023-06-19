@@ -11,6 +11,7 @@ import axios from "axios";
 export default function Ankit() {
   const { EmpId } = useParams();
   const [employeeInfo, setemployeeInfo] = useState(null);
+  console.log("🚀 ~ file: Ankit.jsx:14 ~ Ankit ~ employeeInfo:", employeeInfo)
   useEffect(() => {
     axios
       .get(`employee/getEmployee/${EmpId}`)
@@ -34,20 +35,20 @@ export default function Ankit() {
           display: "flex",
           alignItems: "center",
           justifyContent: "space-around",
-          backgroundColor:'dodgerblue'
+          backgroundColor:'white'
         }}
       >
         <Avatar
           sx={{ width: "100px", height: "100px" }}
-          src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fi2.cinestaan.com%2Fimage-bank%2F1500-1500%2F64001-65000%2F64003.jpg&f=1&nofb=1&ipt=d1a33bf31effc65ed6175cf689b1a37d2ddee47c283f34517c8c140e3e53051e&ipo=images"
+          src={employeeInfo?`http://localhost:3001/${employeeInfo[0].profile_picture}`:null}
         />
         <Box>
-          <Typography variant="h5" color="white">{employeeInfo?employeeInfo[0].full_name:""}</Typography>
-          <Typography variant="subtitle1" color="white">
-            {employeeInfo?employeeInfo[0].location_name:""}
+          <Typography variant="h5" >{employeeInfo?employeeInfo[0].full_name:""}</Typography>
+          <Typography variant="subtitle1" >
+            {employeeInfo?employeeInfo[0].location_name:""} Branch
           </Typography>
         </Box>
-      </Paper>
+      </Paper>  
       <Box m={2}>
         <Grid2 columnSpacing={3} rowSpacing={3} container>
           <Grid2 md={6}>

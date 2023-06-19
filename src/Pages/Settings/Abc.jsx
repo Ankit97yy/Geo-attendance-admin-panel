@@ -10,7 +10,7 @@ import Grid2 from "@mui/material/Unstable_Grid2/Grid2";
 
 export default function Abc() {
   return (
-    <Box>
+    <Box sx={{padding:5}}>
       <Container>
         <Grid2 container spacing={5}>
           <Grid2 md={6}>
